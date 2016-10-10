@@ -1,6 +1,10 @@
 
 # Added by me
 example.txt
+## Output directory.
+bin/
+## Executable.
+Main
 
 # Created by https://www.gitignore.io/api/haskell
 
