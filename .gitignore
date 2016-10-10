@@ -1,10 +1,14 @@
 
 # Added by me
+
 example.txt
 ## Output directory.
 bin/
 ## Executable.
 Main
+## Mathematica files
+*.nb
+*.wl
 
 # Created by https://www.gitignore.io/api/haskell
 
