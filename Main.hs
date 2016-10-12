@@ -50,11 +50,15 @@ isMarker (x, _) = x == "|"
 -- eval function
 eval :: WExp -> Memory -> WValue
 eval = undefined
+--eval (Plus a b) m = a + b
 
 -- exec function
 exec :: WStmt -> Memory -> Memory
-exec (Assign a b) m = map (\x if x == (a,_) then (a,b) else x) m
-exec (VarDecl a b) m = (a,b):m
+-- Reassign a to b.
+exec (Assign a b) m = map (\x -> if x == (a,_) then (a,b) else x) m
+-- Declare a Val.
+exec (VarDecl a (Val b)) m = (a,b):m
+exec (VarDecl a (Var b)) m = (a,b):m
 
 
 -- example programs
