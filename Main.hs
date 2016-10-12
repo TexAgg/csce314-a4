@@ -70,10 +70,9 @@ eval (Not (Val (VBool a))) m = VBool (not a)
 exec :: WStmt -> Memory -> Memory
 -- http://stackoverflow.com/a/10474487/5415895
 -- this causes a GODDAMN ERROR
-exec (Assign a b) m = map (\x -> if x == (a,_) then (a,b) else x) m
+--exec (Assign a b) m = map (\x -> if x == (a,_) then (a,b) else x) m
 -- Declare a Val.
 exec (VarDecl a (Val b)) m = (a,b):m
-exec (VarDecl a b) m = (a,b):m
 
 
 -- example programs
