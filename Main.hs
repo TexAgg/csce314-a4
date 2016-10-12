@@ -53,7 +53,9 @@ eval = undefined
 
 -- exec function
 exec :: WStmt -> Memory -> Memory
-exec = undefined
+exec (Assign a b) m = map (\x if x == (a,_) then (a,b) else x) m
+exec (VarDecl a b) m = (a,b):m
+
 
 -- example programs
 prog1 = Block
