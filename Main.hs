@@ -49,12 +49,21 @@ isMarker (x, _) = x == "|"
 
 -- eval function
 eval :: WExp -> Memory -> WValue
-eval = undefined
---eval (Plus a b) m = a + b
+-- I guess just define the operations for each type.
+eval (Plus (Val a) (Val b)) m = a + b
+eval (Mult (Val a) (Val b)) m = a * b
+-- Cast as a bool or whatever.
+eval (Equals a b) m = VBool (a == b)
+eval (NotEqual a b) m = VBool (a /= b)
+eval (Less a b) m = VBool (a < b)
+eval (Greater a b) m = VBool (a > b)
+eval (LessOrEq a b) m = VBool (a <= b)
+eval (GreaterOrEq a b) m = VBool (a >= b)
 
 -- exec function
 exec :: WStmt -> Memory -> Memory
 -- http://stackoverflow.com/a/10474487/5415895
+-- this causes a GODDAMN ERROR
 exec (Assign a b) m = map (\x -> if x == (a,_) then (a,b) else x) m
 -- Declare a Val.
 exec (VarDecl a (Val b)) m = (a,b):m
