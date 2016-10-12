@@ -54,11 +54,11 @@ eval = undefined
 
 -- exec function
 exec :: WStmt -> Memory -> Memory
--- Reassign a to b.
+-- http://stackoverflow.com/a/10474487/5415895
 exec (Assign a b) m = map (\x -> if x == (a,_) then (a,b) else x) m
 -- Declare a Val.
 exec (VarDecl a (Val b)) m = (a,b):m
-exec (VarDecl a (Var b)) m = (a,b):m
+exec (VarDecl a b) m = (a,b):m
 
 
 -- example programs
