@@ -83,6 +83,8 @@ exec (VarDecl a b) m | lookup a m == Nothing = (a, eval b m):m
 -- If statement                     
 exec (If w s1 s2) m | eval w m == VBool(True) = exec s1 m
                     | otherwise = exec s2 m
+exec (While w s) m | eval w m == VBool(True) = exec (While w s) m
+                   | otherwise = m                  
 -- Execute a block of code.
 -- Execute the first statement in the block,
 -- and then call exec on the rest of the block and the resulting memory.
