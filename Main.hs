@@ -81,9 +81,16 @@ exec Empty m = m
 -- Otherwise, add it to the stack thing.
 exec (Assign a b) m | lookup a m == Nothing = error "This value does not exist."
                     | otherwise = (a, eval b m):m
--- Declare a Val.
+-- Declare a variable.
 exec (VarDecl a b) m | lookup a m == Nothing = (a, eval b m):m
                      | otherwise = error "This value is already declared."
+-- If statement                     
+--exec (If a b c) m =
+-- Execute a block of code.
+-- Execute the first statement in the block,
+-- and then call exec on the rest of the block and the resulting memory.
+exec (Block []) m = m
+exec (Block (x:xs) ) m = exec (Block xs) (exec x m)
 
 
 -- example programs
