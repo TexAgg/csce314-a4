@@ -46,13 +46,20 @@ data WStmt = Empty
 type Memory = [(String, WValue)]
 marker = ("|", VMarker)
 isMarker (x, _) = x == "|"
+--helper to convert the WExp to WValue
+wplus :: WValue -> WValue ->WValue
+wplus (VInt(a)) (VInt(b)) = VInt(a+b)
+
+
 
 -- eval function
 eval :: WExp -> Memory -> WValue
 -- I guess just define the operations for each type thingy.
 eval (Val a) m = a
 --eval (Var a) m = a
-eval (Plus (Val a) (Val b)) m = a + b
+eval ((Plus (Val a) (Val b))) m = (wplus a b)
+
+
 eval (Mult (Val a) (Val b)) m = a * b
 -- Cast as a bool or whatever.
 eval (Equals a b) m = VBool (a == b)
