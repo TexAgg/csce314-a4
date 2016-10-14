@@ -46,21 +46,20 @@ data WStmt = Empty
 type Memory = [(String, WValue)]
 marker = ("|", VMarker)
 isMarker (x, _) = x == "|"
+
 --helper to convert the WExp to WValue
 wplus :: WValue -> WValue ->WValue
-wplus (VInt(a)) (VInt(b)) = VInt(a+b)
-
-
+wplus (VInt a) (VInt b) = VInt(a+b)
 
 -- eval function
 eval :: WExp -> Memory -> WValue
 -- I guess just define the operations for each type thingy.
 eval (Val a) m = a
 --eval (Var a) m = a
-eval ((Plus (Val a) (Val b))) m = (wplus a b)
+eval (Plus (Val a) (Val b)) m = (wplus a b)
 
 
-eval (Mult (Val a) (Val b)) m = a * b
+eval (Mult (Val a) (Val b)) m = VInt ((asInt a)*(asInt b))
 -- Cast as a bool or whatever.
 eval (Equals a b) m = VBool (a == b)
 eval (NotEqual a b) m = VBool (a /= b)
@@ -75,11 +74,16 @@ eval (Not (Val (VBool a))) m = VBool (not a)
 
 -- exec function
 exec :: WStmt -> Memory -> Memory
--- http://stackoverflow.com/a/10474487/5415895
--- this causes a GODDAMN ERROR
---exec (Assign a b) m = map (\x -> if x == (a,_) then (a,b) else x) m
+exec Empty m = m
+-- Assign a variable.
+-- Lookup the variable a in the stack thing.
+-- If it doesn't exist, throw an error.
+-- Otherwise, add it to the stack thing.
+exec (Assign a b) m | lookup a m == Nothing = error "This value does not exist."
+                    | otherwise = (a, eval b m):m
 -- Declare a Val.
-exec (VarDecl a (Val b)) m = (a,b):m
+exec (VarDecl a b) m | lookup a m == Nothing = (a, eval b m):m
+                     | otherwise = error "This value is already declared."
 
 
 -- example programs
