@@ -56,9 +56,6 @@ eval (Val a) m = a
 
 eval ((Plus (Val a) (Val b))) m = VInt((asInt a) + (asInt b))
 eval (Mult (Val a) (Val b)) m = VInt((asInt a) * (asInt b))
-
-
-eval (Mult (Val a) (Val b)) m = VInt ((asInt a)*(asInt b))
 -- Cast as a bool or whatever.
 eval (Equals (Val a)(Val b)) m = (VBool((asInt a)==(asInt b)))
 eval (NotEqual (Val a)(Val b)) m = (VBool((asInt a)/=(asInt b)))
