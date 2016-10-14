@@ -46,28 +46,21 @@ data WStmt = Empty
 type Memory = [(String, WValue)]
 marker = ("|", VMarker)
 isMarker (x, _) = x == "|"
---helper to convert the WExp to WValue
-wplus :: WValue -> WValue ->WValue
-wplus (VInt(a)) (VInt(b)) = VInt(a+b)
-
-
 
 -- eval function
 eval :: WExp -> Memory -> WValue
 -- I guess just define the operations for each type thingy.
 eval (Val a) m = a
 --eval (Var a) m = a
-eval ((Plus (Val a) (Val b))) m = (wplus a b)
-
-
-eval (Mult (Val a) (Val b)) m = a * b
+eval ((Plus (Val a) (Val b))) m = VInt((asInt a) + (asInt b))
+eval (Mult (Val a) (Val b)) m = VInt((asInt a) * (asInt b))
 -- Cast as a bool or whatever.
-eval (Equals a b) m = VBool (a == b)
-eval (NotEqual a b) m = VBool (a /= b)
-eval (Less a b) m = VBool (a < b)
-eval (Greater a b) m = VBool (a > b)
-eval (LessOrEq a b) m = VBool (a <= b)
-eval (GreaterOrEq a b) m = VBool (a >= b)
+eval (Equals a b) m = (VBool((asInt a)==(asInt b)))
+eval (NotEqual a b) m = not$ eval$ Equals (a)(b) m
+eval (Less a b) m = VBool ((asInt a) < (asInt b))
+eval (Greater a b) m = VBool ((asInt a)>(asInt b))
+eval (LessOrEq a b) m = VBool ((asInt a)<=(asInt b))
+eval (GreaterOrEq a b) m = VBool ((asInt a)>=(asInt b))
 -- Idk if theres a better way than all these nested value constructors.
 eval (And (Val (VBool a)) (Val (VBool b) )) m = VBool (a && b)
 eval (Or (Val (VBool a)) (Val (VBool b) )) m = VBool (a || b)
