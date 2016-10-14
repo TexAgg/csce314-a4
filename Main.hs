@@ -65,12 +65,12 @@ eval (Plus (Val a) (Val b)) m = (wplus a b)
 
 eval (Mult (Val a) (Val b)) m = VInt ((asInt a)*(asInt b))
 -- Cast as a bool or whatever.
-eval (Equals a b) m = (VBool((asInt a)==(asInt b)))
-eval (NotEqual a b) m = not$ eval$ Equals (a)(b) m
-eval (Less a b) m = VBool ((asInt a) < (asInt b))
-eval (Greater a b) m = VBool ((asInt a)>(asInt b))
-eval (LessOrEq a b) m = VBool ((asInt a)<=(asInt b))
-eval (GreaterOrEq a b) m = VBool ((asInt a)>=(asInt b))
+eval (Equals (Val a) (Val b)) m = (VBool((asInt a)==(asInt b)))
+eval (NotEqual (Val a) (Val b)) m = VBool (not $ eval (Equals a b) m)
+eval (Less (Val a) (Val b)) m = VBool ((asInt a) < (asInt b))
+eval (Greater (Val a) (Val b)) m = VBool ((asInt a)>(asInt b))
+eval (LessOrEq (Val a) (Val b)) m = VBool ((asInt a)<=(asInt b))
+eval (GreaterOrEq (Val a) (Val b)) m = VBool ((asInt a)>=(asInt b))
 -- Idk if theres a better way than all these nested value constructors.
 eval (And (Val (VBool a)) (Val (VBool b) )) m = VBool (a && b)
 eval (Or (Val (VBool a)) (Val (VBool b) )) m = VBool (a || b)
@@ -89,7 +89,8 @@ exec (Assign a b) m | lookup a m == Nothing = error "This value does not exist."
 exec (VarDecl a b) m | lookup a m == Nothing = (a, eval b m):m
                      | otherwise = error "This value is already declared."
 -- If statement                     
---exec (If a b c) m =
+exec (If w s1 s2) m | eval w m == VBool(True) = exec s1 m
+                    | otherwise = exec s2 m
 -- Execute a block of code.
 -- Execute the first statement in the block,
 -- and then call exec on the rest of the block and the resulting memory.
