@@ -52,8 +52,8 @@ isMarker (x, _) = x == "|"
 eval :: WExp -> Memory -> WValue
 -- I guess just define the operations for each type thingy.
 eval (Val a) m = a
---eval (Var a) m =a
-
+eval (Var a) m | lookup a m == Nothing = error "Undefined variable."
+               | otherwise = eval (Val (fromJust(lookup a m))) m
 eval ((Plus (Val a) (Val b))) m = VInt((asInt a) + (asInt b))
 eval (Mult (Val a) (Val b)) m = VInt((asInt a) * (asInt b))
 -- Cast as a bool or whatever.
@@ -119,6 +119,7 @@ factorial = Block
   ]
 
 -- some useful helper functions
+-- lookup :: String -> Memory -> Maybe WValue
 lookup s [] = Nothing
 lookup s ((k,v):xs) | s == k = Just v
                     | otherwise = lookup s xs
