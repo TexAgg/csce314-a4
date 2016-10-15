@@ -50,39 +50,70 @@ isMarker (x, _) = x == "|"
 
 -- eval function
 eval :: WExp -> Memory -> WValue
+-- Added error patterns so we wouldn't get non-exhaustive pattern matching error upon runtime, 
+-- but this isn't perfect because the W program doesn't work.
+
 eval (Val a) m = a
+
 eval (Var a) m | lookup a m == Nothing = error "Undefined variable."
                | otherwise = eval (Val (fromJust(lookup a m))) m
+
 eval ((Plus (Val a) (Val b))) m = VInt ((asInt (eval (Val a) m) ) + (asInt (eval (Val b) m)))
+eval (Plus _ _) m = error "Bad"
+
 eval (Mult (Val a) (Val b)) m = VInt ((asInt (eval (Val a) m) ) * (asInt (eval (Val b) m)))
--- Cast as a bool or whatever.
+eval (Mult _ _) m = error "Bad"
+
 eval (Equals (Val a)(Val b)) m = VBool ((asInt (eval (Val a) m)) == (asInt (eval (Val b) m)))
+eval (Equals _ _) m = error "Bad"
+
 eval (NotEqual (Val a)(Val b)) m = VBool ((asInt (eval (Val a) m)) /= (asInt (eval (Val b) m)))
+eval (NotEqual _ _) m = error "Bad"
+
 eval (Less (Val a)(Val b)) m = VBool ((asInt (eval (Val a) m)) < (asInt (eval (Val b) m)))
+eval (Less _ _) m = error "Bad"
+
 eval (Greater (Val a)(Val b)) m = VBool ((asInt (eval (Val a) m)) > (asInt (eval (Val b) m)))
+eval (Greater _ _) m = error "Bad"
+
 eval (LessOrEq (Val a)(Val b)) m = VBool ((asInt (eval (Val a) m)) <= (asInt (eval (Val b) m)))
+eval (LessOrEq _ _) m = error "Bad"
+
 eval (GreaterOrEq (Val a)(Val b)) m = VBool ((asInt (eval (Val a) m)) >= (asInt (eval (Val b) m)))
+eval (GreaterOrEq _ _) m = error "Bad"
+
 eval (And (Val (VBool a)) (Val (VBool b) )) m = VBool ((asBool (eval (Val (VBool a) ) m)) && (asBool (eval (Val (VBool b) ) m)))
+eval (And _ _) m = error "Bad"
+
 eval (Or (Val (VBool a)) (Val (VBool b) )) m = VBool ((asBool (eval (Val (VBool a) ) m)) || (asBool (eval (Val (VBool b) ) m)))
+eval (Or _ _) m = error "Bad"
 eval (Not (Val (VBool a))) m = VBool (not (asBool (eval (Val (VBool a) ) m)) )
+eval (Not _) m = error "Bad"
+
 
 -- exec function
 exec :: WStmt -> Memory -> Memory
+
 exec Empty m = m
+
 -- Assign a variable.
 -- Lookup the variable a in the stack thing.
 -- If it doesn't exist, throw an error.
 -- Otherwise, add it to the stack thing.
 exec (Assign a b) m | lookup a m == Nothing = error "This value does not exist."
                     | otherwise = (a, eval b m):m
+
 -- Declare a variable.
 exec (VarDecl a b) m | lookup a m == Nothing = (a, eval b m):m
                      | otherwise = error "This value is already declared."
+
 -- If statement                     
 exec (If w s1 s2) m | eval w m == VBool(True) = exec s1 m
                     | otherwise = exec s2 m
+
 exec (While w s) m | eval w m == VBool(True) = exec (While w s) m
-                   | otherwise = m                  
+                   | otherwise = m    
+                                 
 -- Execute a block of code.
 -- Execute the first statement in the block,
 -- and then call exec on the rest of the block and the resulting memory.
