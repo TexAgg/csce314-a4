@@ -56,15 +56,15 @@ eval (Var a) m | lookup a m == Nothing = error "Undefined variable."
 eval ((Plus (Val a) (Val b))) m = VInt ((asInt (eval (Val a) m) ) + (asInt (eval (Val b) m)))
 eval (Mult (Val a) (Val b)) m = VInt ((asInt (eval (Val a) m) ) * (asInt (eval (Val b) m)))
 -- Cast as a bool or whatever.
-eval (Equals (Val a)(Val b)) m = (VBool((asInt a)==(asInt b)))
-eval (NotEqual (Val a)(Val b)) m = (VBool((asInt a)/=(asInt b)))
-eval (Less (Val a)(Val b)) m = VBool ((asInt a) < (asInt b))
-eval (Greater (Val a)(Val b)) m = VBool ((asInt a)>(asInt b))
-eval (LessOrEq (Val a)(Val b)) m = VBool ((asInt a)<=(asInt b))
-eval (GreaterOrEq (Val a)(Val b)) m = VBool ((asInt a)>=(asInt b))
-eval (And (Val (VBool a)) (Val (VBool b) )) m = VBool (a && b)
-eval (Or (Val (VBool a)) (Val (VBool b) )) m = VBool (a || b)
-eval (Not (Val (VBool a))) m = VBool (not a)
+eval (Equals (Val a)(Val b)) m = VBool ((asInt (eval (Val a) m)) == (asInt (eval (Val b) m)))
+eval (NotEqual (Val a)(Val b)) m = VBool ((asInt (eval (Val a) m)) /= (asInt (eval (Val b) m)))
+eval (Less (Val a)(Val b)) m = VBool ((asInt (eval (Val a) m)) < (asInt (eval (Val b) m)))
+eval (Greater (Val a)(Val b)) m = VBool ((asInt (eval (Val a) m)) > (asInt (eval (Val b) m)))
+eval (LessOrEq (Val a)(Val b)) m = VBool ((asInt (eval (Val a) m)) <= (asInt (eval (Val b) m)))
+eval (GreaterOrEq (Val a)(Val b)) m = VBool ((asInt (eval (Val a) m)) >= (asInt (eval (Val b) m)))
+eval (And (Val (VBool a)) (Val (VBool b) )) m = VBool ((asBool (eval (Val (VBool a) ) m)) && (asBool (eval (Val (VBool b) ) m)))
+eval (Or (Val (VBool a)) (Val (VBool b) )) m = VBool ((asBool (eval (Val (VBool a) ) m)) || (asBool (eval (Val (VBool b) ) m)))
+eval (Not (Val (VBool a))) m = VBool (not (asBool (eval (Val (VBool a) ) m)) )
 
 -- exec function
 exec :: WStmt -> Memory -> Memory
