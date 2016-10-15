@@ -53,8 +53,8 @@ eval :: WExp -> Memory -> WValue
 eval (Val a) m = a
 eval (Var a) m | lookup a m == Nothing = error "Undefined variable."
                | otherwise = eval (Val (fromJust(lookup a m))) m
-eval ((Plus (Val a) (Val b))) m = VInt((asInt a) + (asInt b))
-eval (Mult (Val a) (Val b)) m = VInt((asInt a) * (asInt b))
+eval ((Plus (Val a) (Val b))) m = VInt ((asInt (eval (Val a) m) ) + (asInt (eval (Val b) m)))
+eval (Mult (Val a) (Val b)) m = VInt ((asInt (eval (Val a) m) ) * (asInt (eval (Val b) m)))
 -- Cast as a bool or whatever.
 eval (Equals (Val a)(Val b)) m = (VBool((asInt a)==(asInt b)))
 eval (NotEqual (Val a)(Val b)) m = (VBool((asInt a)/=(asInt b)))
