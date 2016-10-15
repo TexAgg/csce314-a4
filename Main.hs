@@ -50,7 +50,6 @@ isMarker (x, _) = x == "|"
 
 -- eval function
 eval :: WExp -> Memory -> WValue
--- I guess just define the operations for each type thingy.
 eval (Val a) m = a
 eval (Var a) m | lookup a m == Nothing = error "Undefined variable."
                | otherwise = eval (Val (fromJust(lookup a m))) m
@@ -63,7 +62,6 @@ eval (Less (Val a)(Val b)) m = VBool ((asInt a) < (asInt b))
 eval (Greater (Val a)(Val b)) m = VBool ((asInt a)>(asInt b))
 eval (LessOrEq (Val a)(Val b)) m = VBool ((asInt a)<=(asInt b))
 eval (GreaterOrEq (Val a)(Val b)) m = VBool ((asInt a)>=(asInt b))
--- Idk if theres a better way than all these nested value constructors.
 eval (And (Val (VBool a)) (Val (VBool b) )) m = VBool (a && b)
 eval (Or (Val (VBool a)) (Val (VBool b) )) m = VBool (a || b)
 eval (Not (Val (VBool a))) m = VBool (not a)
