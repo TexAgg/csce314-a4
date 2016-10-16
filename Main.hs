@@ -57,38 +57,38 @@ eval (Val a) m = a
 
 eval (Var a) m | lookup a m == Nothing = error "Undefined variable."
                | otherwise = eval (Val (fromJust(lookup a m))) m
-
+--ahhhh this makes sense
 eval ((Plus (Val a) (Val b))) m = VInt ((asInt (eval (Val a) m) ) + (asInt (eval (Val b) m)))
-eval (Plus _ _) m = error "Bad"
+eval (Plus _ _) m = error "Bad Plus"
 
 eval (Mult (Val a) (Val b)) m = VInt ((asInt (eval (Val a) m) ) * (asInt (eval (Val b) m)))
-eval (Mult _ _) m = error "Bad"
+eval (Mult _ _) m = error "Bad mult"
 
 eval (Equals (Val a)(Val b)) m = VBool ((asInt (eval (Val a) m)) == (asInt (eval (Val b) m)))
-eval (Equals _ _) m = error "Bad"
+eval (Equals _ _) m = error "Bad Equals"
 
 eval (NotEqual (Val a)(Val b)) m = VBool ((asInt (eval (Val a) m)) /= (asInt (eval (Val b) m)))
-eval (NotEqual _ _) m = error "Bad"
+eval (NotEqual _ _) m = error "Bad Not Equal"
 
 eval (Less (Val a)(Val b)) m = VBool ((asInt (eval (Val a) m)) < (asInt (eval (Val b) m)))
-eval (Less _ _) m = error "Bad"
+eval (Less _ _) m = error "Bad Less"
 
 eval (Greater (Val a)(Val b)) m = VBool ((asInt (eval (Val a) m)) > (asInt (eval (Val b) m)))
-eval (Greater _ _) m = error "Bad"
+eval (Greater _ _) m = error "Bad Greater"
 
 eval (LessOrEq (Val a)(Val b)) m = VBool ((asInt (eval (Val a) m)) <= (asInt (eval (Val b) m)))
-eval (LessOrEq _ _) m = error "Bad"
+eval (LessOrEq _ _) m = error "Bad LessorEq"
 
 eval (GreaterOrEq (Val a)(Val b)) m = VBool ((asInt (eval (Val a) m)) >= (asInt (eval (Val b) m)))
-eval (GreaterOrEq _ _) m = error "Bad"
+eval (GreaterOrEq _ _) m = error "Bad Greater or Eq"
 
 eval (And (Val (VBool a)) (Val (VBool b) )) m = VBool ((asBool (eval (Val (VBool a) ) m)) && (asBool (eval (Val (VBool b) ) m)))
-eval (And _ _) m = error "Bad"
+eval (And _ _) m = error "Bad And"
 
 eval (Or (Val (VBool a)) (Val (VBool b) )) m = VBool ((asBool (eval (Val (VBool a) ) m)) || (asBool (eval (Val (VBool b) ) m)))
-eval (Or _ _) m = error "Bad"
+eval (Or _ _) m = error "Bad or"
 eval (Not (Val (VBool a))) m = VBool (not (asBool (eval (Val (VBool a) ) m)) )
-eval (Not _) m = error "Bad"
+eval (Not _) m = error "Bad Not"
 
 
 -- exec function
@@ -120,11 +120,17 @@ exec (While w s) m | eval w m == VBool(True) = exec (While w s) m
 exec (Block []) m = m
 exec (Block (x:xs) ) m = exec (Block xs) (exec x m)
 
+--testcases
+--plus
+t1 = Plus(Val(VInt 1)) (Val(VInt 1))
+--mult
+t2 = Mult(Val (VInt 2)) (Val(VInt 4))
+
 
 -- example programs
 prog1 = Block
    [
-     VarDecl "x" (Val (VInt 0)),
+     VarDecl "x" (Val (VInt 0)), 
      VarDecl "y" (Val (VInt 1)),
      VarDecl "b" (Greater (Var "x") (Val (VInt 0))),
      If (Or (Var "b") (Not (GreaterOrEq (Var "x") (Val (VInt 0)))))
