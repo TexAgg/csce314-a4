@@ -74,20 +74,25 @@ eval (Less (Val a)(Val b)) m = VBool ((asInt (eval (Val a) m)) < (asInt (eval (V
 eval (Less _ _) m = error "Bad Less"
 
 eval (Greater (Val a)(Val b)) m = VBool ((asInt (eval (Val a) m)) > (asInt (eval (Val b) m)))
+eval (Greater a b ) m = VBool ((asInt (eval a m)) > (asInt (eval b m)))
 eval (Greater _ _) m = error "Bad Greater"
 
 eval (LessOrEq (Val a)(Val b)) m = VBool ((asInt (eval (Val a) m)) <= (asInt (eval (Val b) m)))
 eval (LessOrEq _ _) m = error "Bad LessorEq"
 
 eval (GreaterOrEq (Val a)(Val b)) m = VBool ((asInt (eval (Val a) m)) >= (asInt (eval (Val b) m)))
+eval (GreaterOrEq a b) m = VBool ((asInt (eval a m)) >= (asInt (eval b m)))
 eval (GreaterOrEq _ _) m = error "Bad Greater or Eq"
 
 eval (And (Val (VBool a)) (Val (VBool b) )) m = VBool ((asBool (eval (Val (VBool a) ) m)) && (asBool (eval (Val (VBool b) ) m)))
 eval (And _ _) m = error "Bad And"
 
 eval (Or (Val (VBool a)) (Val (VBool b) )) m = VBool ((asBool (eval (Val (VBool a) ) m)) || (asBool (eval (Val (VBool b) ) m)))
+eval (Or a b) m = VBool((asBool (eval a m)) || (asBool (eval b m)))
 eval (Or _ _) m = error "Bad or"
-eval (Not (Val (VBool a))) m = VBool (not (asBool (eval (Val (VBool a) ) m)) )
+
+eval (Not (Val (VBool a))) m = VBool (not (asBool (eval (Val (VBool a) ) m)))
+eval (Not a) m = VBool (not (asBool (eval a m)))
 eval (Not _) m = error "Bad Not"
 
 
@@ -134,6 +139,7 @@ prog1 = Block
      VarDecl "y" (Val (VInt 1)),
      VarDecl "b" (Greater (Var "x") (Val (VInt 0))),
      If (Or (Var "b") (Not (GreaterOrEq (Var "x") (Val (VInt 0)))))
+
         ( Block [ Assign "x" (Val (VInt 1)),
                   Assign "y" (Plus (Var "y") (Val (VInt 1)))
                 ] 
