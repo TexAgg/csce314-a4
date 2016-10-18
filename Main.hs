@@ -106,7 +106,7 @@ exec Empty m = m
 -- If it doesn't exist, throw an error.
 -- Otherwise, add it to the stack thing.
 exec (Assign a b) m | lookup a m == Nothing = error "This value does not exist."
-                    | otherwise = (a, eval b m):m
+                    | otherwise = (a, eval b m): filter (\(x,_) -> x /= a ) m
 
 -- Declare a variable.
 exec (VarDecl a b) m | lookup a m == Nothing = (a, eval b m):m
