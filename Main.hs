@@ -96,9 +96,13 @@ eval (Not a) m = VBool (not (asBool (eval a m)))
 eval (Not _) m = error "Bad Not"
 
 -- stupid helper function which deals with block statements.
+--im trying to write a function that looks for the ("|",VMarker) and then deletes everything up to it
+removescope :: Memory -> Memory
+removescope m | ((elemIndex ("|",VMarker) m) /= Nothing) = drop((\(Just x)->x)((elemIndex ("|",VMarker) m))) m
+              | otherwise = error "There is nothing"
 sexec :: WStmt -> Memory -> Memory
 -- This delete doesn't work.
-sexec (Block []) m = delete ("|", VMarker) ( dropWhile (not . isMarker) m )
+sexec (Block []) m = removescope m
 sexec (Block (x:xs) ) m = sexec (Block xs) (exec x m)
 sexec a m = exec a m
 
@@ -131,7 +135,7 @@ exec (While w s) m | eval w m == VBool(True) = exec (While w s) m
 exec (Block []) m = m
 --exec (Block (x:xs) ) m = exec (Block xs) (exec x m)
 -- Add a marker then call sexec.
-exec (Block xs) m = sexec (Block xs) m ++ [("|", VMarker)]
+exec (Block xs) m =  sexec (Block xs) m ++ [("|", VMarker)]
 
 --testcases
 --plus
