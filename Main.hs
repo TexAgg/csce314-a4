@@ -7,7 +7,7 @@
 module Main where
 
 import Prelude hiding (lookup)
-
+import Data.List hiding (lookup)
 import Test.HUnit
 import System.Exit
 
@@ -97,7 +97,7 @@ eval (Not _) m = error "Bad Not"
 
 -- stupid helper function which deals with block statements.
 sexec :: WStmt -> Memory -> Memory
-sexec (Block []) m = m ++ [("|", VMarker)]
+sexec (Block []) m = delete ("|", VMarker) ( dropWhile (not . isMarker) m )
 sexec (Block (x:xs) ) m = sexec (Block xs) (exec x m)
 sexec a m = exec a m
 
@@ -130,7 +130,7 @@ exec (While w s) m | eval w m == VBool(True) = exec (While w s) m
 exec (Block []) m = m
 --exec (Block (x:xs) ) m = exec (Block xs) (exec x m)
 -- Add a marker then call sexec.
-exec (Block xs) m = ("|", VMarker):sexec (Block xs) m
+exec (Block xs) m = sexec (Block xs) m ++ [("|", VMarker)]
 
 --testcases
 --plus
