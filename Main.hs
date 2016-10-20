@@ -97,6 +97,7 @@ eval (Not _) m = error "Bad Not"
 
 -- stupid helper function which deals with block statements.
 sexec :: WStmt -> Memory -> Memory
+-- This delete doesn't work.
 sexec (Block []) m = delete ("|", VMarker) ( dropWhile (not . isMarker) m )
 sexec (Block (x:xs) ) m = sexec (Block xs) (exec x m)
 sexec a m = exec a m
@@ -122,7 +123,7 @@ exec (If w s1 s2) m | eval w m == VBool(True) = exec s1 m
                     | otherwise = exec s2 m
 
 exec (While w s) m | eval w m == VBool(True) = exec (While w s) m
-                   | otherwise = m    
+                   | otherwise = m
                                  
 -- Execute a block of code.
 -- Execute the first statement in the block,
