@@ -55,7 +55,7 @@ eval :: WExp -> Memory -> WValue
 
 eval (Val a) m = a
 
-eval (Var a) m | lookup a m == Nothing = error "Undefined variable."
+eval (Var a) m | lookup a m == Nothing = error $ "Undefined variable " ++ a 
                | otherwise = eval (Val (fromJust(lookup a m))) m
 --ahhhh this makes sense
 eval ((Plus (Val a) (Val b))) m = VInt ((asInt (eval (Val a) m) ) + (asInt (eval (Val b) m)))
@@ -95,13 +95,6 @@ eval (Not (Val (VBool a))) m = VBool (not (asBool (eval (Val (VBool a) ) m)))
 eval (Not a) m = VBool (not (asBool (eval a m)))
 eval (Not _) m = error "Bad Not"
 
--- stupid helper function which deals with block statements.
-sexec :: WStmt -> Memory -> Memory
--- This delete doesn't work.
-sexec (Block []) m = dropWhile (not . isMarker) m
-sexec (Block (x:xs) ) m = sexec (Block xs) (exec x m)
-sexec a m = exec a m
-
 -- exec function
 exec :: WStmt -> Memory -> Memory
 
@@ -124,7 +117,13 @@ exec (If w s1 s2) m | eval w m == VBool(True) = exec s1 m
 
 exec (While w s) m | eval w m == VBool(True) = exec (While w s) m
                    | otherwise = m
-                                 
+
+exec (Block xs) m = exec' (Block xs) (marker:m)
+                       where exec' (Block []) m = delete marker (dropWhile (/= marker) m)
+                             exec' (Block (x:xs)) m = exec' (Block xs) (exec x m)
+                       
+
+{-                            
 -- Execute a block of code.
 -- Execute the first statement in the block,
 -- and then call exec on the rest of the block and the resulting memory.
@@ -132,6 +131,16 @@ exec (Block []) m = m -- This is never reached.
 --exec (Block (x:xs) ) m = exec (Block xs) (exec x m)
 -- Add a marker then call sexec.
 exec (Block xs) m = delete ("|", VMarker) ( sexec (Block xs) m ++ [("|", VMarker)])
+-}
+{-
+-- https://github.com/tylerjdurden/language-parser/blob/master/W.hs#L149
+exec (Block ss) m = exec' ss (marker:m) >>= \m' -> return $ popMarker m'
+  where exec' [] m = return m
+        exec' (s:ss) m = exec s m >>= \m' -> exec' ss m' 
+        popMarker [] = []
+        popMarker (x:xs) | isMarker x = xs
+                         | otherwise  = popMarker xs
+-}
 
 --testcases
 --plus
