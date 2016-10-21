@@ -77,7 +77,7 @@ eval (Less _ _) m = error "Bad Less"
 eval (Greater a b) m = VBool ((asInt (eval a m)) > (asInt (eval b m)))
 eval (Greater _ _) m = error "Bad Greater"
 
-eval (LessOrEq (Val a)(Val b)) m = VBool ((asInt (eval (Val a) m)) <= (asInt (eval (Val b) m)))
+eval (LessOrEq a b) m = VBool ((asInt (eval a m)) <= (asInt (eval b m)))
 eval (LessOrEq _ _) m = error "Bad LessorEq"
 
 --eval (GreaterOrEq (Val a)(Val b)) m = VBool ((asInt (eval (Val a) m)) >= (asInt (eval (Val b) m)))
@@ -169,6 +169,7 @@ factorial = Block
      ),
      Assign "result" (Var "acc")
   ]
+--used for tests
 prog02 = Block
   [
   VarDecl "a" (Val(VInt 1)),
@@ -177,6 +178,24 @@ prog02 = Block
     Assign "a" (Plus (Var "a") (Val (VInt 1)))
   )
   ]
+fibonacci = Block
+  [
+      VarDecl "counter" (Val(VInt 1)),
+      VarDecl "a" (Val(VInt 0)),
+      VarDecl "b" (Val(VInt 1)),
+      VarDecl "c" (Val(VInt 0)),
+      While(LessOrEq (Var "counter")(Var "n"))
+      (
+        Block
+        [
+          Assign "c" (Plus (Var "a") (Var "b")),
+          Assign "b" (Var "a"),
+          Assign "a" (Var "c"),
+          Assign "counter" (Plus (Var "counter") (Val (VInt (1))))
+        ]
+      ),
+      Assign "n" (Var "c")
+   ]
 -- some useful helper functions
 -- lookup :: String -> Memory -> Maybe WValue
 lookup s [] = Nothing
