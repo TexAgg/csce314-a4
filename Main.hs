@@ -75,7 +75,6 @@ eval (Less a b) m = VBool ((asInt (eval a m)) < (asInt (eval b m)))
 eval (Less _ _) m = error "Bad Less"
 
 eval (Greater a b) m = VBool ((asInt (eval a m)) > (asInt (eval b m)))
---eval (Greater a b ) m = VBool ((asInt (eval a m)) > (asInt (eval b m)))
 eval (Greater _ _) m = error "Bad Greater"
 
 eval (LessOrEq (Val a)(Val b)) m = VBool ((asInt (eval (Val a) m)) <= (asInt (eval (Val b) m)))
@@ -109,7 +108,10 @@ exec Empty m = m
 -- If it doesn't exist, throw an error.
 -- Otherwise, add it to the stack thing.
 exec (Assign a b) m | lookup a m == Nothing = error "This value does not exist."
-                    | otherwise = (a, eval b m): filter (\(x,_) -> x /= a ) m
+                    | otherwise = replace a b m
+                    where replace _ _ [] = []
+                          replace a b (x@(k,_):xs)| a == k = (k,(eval b m)):xs
+                                                  | otherwise = x:replace a b xs
 
 -- Declare a variable.
 exec (VarDecl a b) m | lookup a m == Nothing = (a, eval b m):m
@@ -164,8 +166,8 @@ factorial = Block
        [ Assign "acc" (Mult (Var "acc") (Var "arg")),
          Assign "arg" (Plus (Var "arg") (Val (VInt (-1))))         
        ]
-     )
-    -- Assign "result" (Var "acc")
+     ),
+     Assign "result" (Var "acc")
   ]
 prog02 = Block
   [
