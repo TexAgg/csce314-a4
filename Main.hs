@@ -55,45 +55,49 @@ eval :: WExp -> Memory -> WValue
 
 eval (Val a) m = a
 
-eval (Var a) m | lookup a m == Nothing = error $ "Undefined variable " ++ a 
+eval (Var a) m | lookup a m == Nothing = error $"Undefined variable."++ a
                | otherwise = eval (Val (fromJust(lookup a m))) m
 --ahhhh this makes sense
-eval ((Plus (Val a) (Val b))) m = VInt ((asInt (eval (Val a) m) ) + (asInt (eval (Val b) m)))
+--eval ((Plus (Val a) (Val b))) m = VInt ((asInt (eval (Val a) m) ) + (asInt (eval (Val b) m)))
+eval ((Plus a b )) m = VInt ((asInt (eval a m)) + (asInt (eval b m)))
 eval (Plus _ _) m = error "Bad Plus"
 
-eval (Mult (Val a) (Val b)) m = VInt ((asInt (eval (Val a) m) ) * (asInt (eval (Val b) m)))
+eval (Mult a b) m = VInt ((asInt (eval a m) ) * (asInt (eval b m)))
 eval (Mult _ _) m = error "Bad mult"
 
-eval (Equals (Val a)(Val b)) m = VBool ((asInt (eval (Val a) m)) == (asInt (eval (Val b) m)))
+eval (Equals a b) m = VBool ((asInt (eval a m)) == (asInt (eval b m)))
 eval (Equals _ _) m = error "Bad Equals"
 
-eval (NotEqual (Val a)(Val b)) m = VBool ((asInt (eval (Val a) m)) /= (asInt (eval (Val b) m)))
+eval (NotEqual a b) m = VBool ((asInt (eval a m)) /= (asInt (eval b m)))
 eval (NotEqual _ _) m = error "Bad Not Equal"
 
-eval (Less (Val a)(Val b)) m = VBool ((asInt (eval (Val a) m)) < (asInt (eval (Val b) m)))
+eval (Less a b) m = VBool ((asInt (eval a m)) < (asInt (eval b m)))
 eval (Less _ _) m = error "Bad Less"
 
-eval (Greater (Val a)(Val b)) m = VBool ((asInt (eval (Val a) m)) > (asInt (eval (Val b) m)))
-eval (Greater a b ) m = VBool ((asInt (eval a m)) > (asInt (eval b m)))
+eval (Greater a b) m = VBool ((asInt (eval a m)) > (asInt (eval b m)))
+--eval (Greater a b ) m = VBool ((asInt (eval a m)) > (asInt (eval b m)))
 eval (Greater _ _) m = error "Bad Greater"
 
 eval (LessOrEq (Val a)(Val b)) m = VBool ((asInt (eval (Val a) m)) <= (asInt (eval (Val b) m)))
 eval (LessOrEq _ _) m = error "Bad LessorEq"
 
-eval (GreaterOrEq (Val a)(Val b)) m = VBool ((asInt (eval (Val a) m)) >= (asInt (eval (Val b) m)))
+--eval (GreaterOrEq (Val a)(Val b)) m = VBool ((asInt (eval (Val a) m)) >= (asInt (eval (Val b) m)))
 eval (GreaterOrEq a b) m = VBool ((asInt (eval a m)) >= (asInt (eval b m)))
 eval (GreaterOrEq _ _) m = error "Bad Greater or Eq"
 
 eval (And (Val (VBool a)) (Val (VBool b) )) m = VBool ((asBool (eval (Val (VBool a) ) m)) && (asBool (eval (Val (VBool b) ) m)))
 eval (And _ _) m = error "Bad And"
 
-eval (Or (Val (VBool a)) (Val (VBool b) )) m = VBool ((asBool (eval (Val (VBool a) ) m)) || (asBool (eval (Val (VBool b) ) m)))
+--eval (Or (Val (VBool a)) (Val (VBool b) )) m = VBool ((asBool (eval (Val (VBool a) ) m)) || (asBool (eval (Val (VBool b) ) m)))
 eval (Or a b) m = VBool((asBool (eval a m)) || (asBool (eval b m)))
 eval (Or _ _) m = error "Bad or"
 
-eval (Not (Val (VBool a))) m = VBool (not (asBool (eval (Val (VBool a) ) m)))
+--eval (Not (Val (VBool a))) m = VBool (not (asBool (eval (Val (VBool a) ) m)))
 eval (Not a) m = VBool (not (asBool (eval a m)))
 eval (Not _) m = error "Bad Not"
+
+-- stupid helper function which deals with block statements.
+--im trying to write a function that looks for the ("|",VMarker) and then deletes everything up to it
 
 -- exec function
 exec :: WStmt -> Memory -> Memory
@@ -115,32 +119,20 @@ exec (VarDecl a b) m | lookup a m == Nothing = (a, eval b m):m
 exec (If w s1 s2) m | eval w m == VBool(True) = exec s1 m
                     | otherwise = exec s2 m
 
-exec (While w s) m | eval w m == VBool(True) = exec (While w s) m
-                   | otherwise = m
-
-exec (Block xs) m = exec' (Block xs) (marker:m)
-                       where exec' (Block []) m = delete marker (dropWhile (/= marker) m)
-                             exec' (Block (x:xs)) m = exec' (Block xs) (exec x m)
-                       
-
-{-                            
+exec (While w s) m | eval w m == VBool(True) = exec (While w s) (exec s m)
+                   | eval w m == VBool(False) = m
+                   | otherwise = error "Error"
+                                 
 -- Execute a block of code.
 -- Execute the first statement in the block,
 -- and then call exec on the rest of the block and the resulting memory.
-exec (Block []) m = m -- This is never reached.
+
 --exec (Block (x:xs) ) m = exec (Block xs) (exec x m)
 -- Add a marker then call sexec.
-exec (Block xs) m = delete ("|", VMarker) ( sexec (Block xs) m ++ [("|", VMarker)])
--}
-{-
--- https://github.com/tylerjdurden/language-parser/blob/master/W.hs#L149
-exec (Block ss) m = exec' ss (marker:m) >>= \m' -> return $ popMarker m'
-  where exec' [] m = return m
-        exec' (s:ss) m = exec s m >>= \m' -> exec' ss m' 
-        popMarker [] = []
-        popMarker (x:xs) | isMarker x = xs
-                         | otherwise  = popMarker xs
--}
+exec (Block xs) m = popMarker $ foldr exec (marker:m) (reverse xs)
+                  where popMarker [] = []
+                        popMarker (x:xs) | isMarker x = xs
+                                         | otherwise = popMarker xs
 
 --testcases
 --plus
@@ -172,10 +164,17 @@ factorial = Block
        [ Assign "acc" (Mult (Var "acc") (Var "arg")),
          Assign "arg" (Plus (Var "arg") (Val (VInt (-1))))         
        ]
-     ),
-     Assign "result" (Var "acc")
+     )
+    -- Assign "result" (Var "acc")
   ]
-
+prog02 = Block
+  [
+  VarDecl "a" (Val(VInt 1)),
+ While(Not (Greater (Var "a") (Val(VInt 3))))
+  (
+    Assign "a" (Plus (Var "a") (Val (VInt 1)))
+  )
+  ]
 -- some useful helper functions
 -- lookup :: String -> Memory -> Maybe WValue
 lookup s [] = Nothing
@@ -197,7 +196,7 @@ myTestList =
     test $ assertEqual "prog1 test" [] (exec prog1 []),
 
     let res = lookup "result" (
-                exec factorial [("result", VInt (-1)), ("arg", VInt 10)])
+               exec factorial [("result", VInt (-1)), ("arg", VInt 10)])
     in test $ assertBool "factorial of 10" (3628800 == asInt (fromJust res))
     ]    
 
