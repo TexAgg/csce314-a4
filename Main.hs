@@ -158,6 +158,8 @@ prog1 = Block
         ( Assign "x" (Val (VInt 2)) )
   ]
 
+nonsense = Plus (Val (VBool True)) (Val (VInt 1))
+
 factorial = Block
   [
      VarDecl "acc" (Val (VInt 1)),
