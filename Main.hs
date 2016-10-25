@@ -1,8 +1,8 @@
 
 -- Assignment 4 Part I, CSCE-314
--- Section: PUT YOUR TEAM MEMBERS' SECTIONS (202 or 502) HERE
+-- Section: 502
 -- Matt Gaikema: 923008006
--- Jason Zuang: 
+-- Jason Zuang: 724002152
 
 module Main where
 
@@ -108,10 +108,15 @@ exec Empty m = m
 -- If it doesn't exist, throw an error.
 -- Otherwise, add it to the stack thing.
 exec (Assign a b) m | lookup a m == Nothing = error "This value does not exist."
-                    | otherwise = replace a b m
+                    | otherwise = replace a (eval b m) m
                     where replace _ _ [] = []
-                          replace a b (x@(k,_):xs)| a == k = (k,(eval b m)):xs
-                                                  | otherwise = x:replace a b xs
+                          replace a b (x@(k,_):xs)| a == k = if same b x
+                                                                then (k,b):xs
+                                                                else error $"type error in "++ a
+                                                  | otherwise = x : replace a b xs
+                          same v@(VInt _) x@(_,VInt _) = True
+                          same v@(VBool _) x@(_,VBool _) = True
+                          same _ _ = False
 
 -- Declare a variable.
 exec (VarDecl a b) m | lookup a m == Nothing = (a, eval b m):m
@@ -131,10 +136,10 @@ exec (While w s) m | eval w m == VBool(True) = exec (While w s) (exec s m)
 
 --exec (Block (x:xs) ) m = exec (Block xs) (exec x m)
 -- Add a marker then call sexec.
-exec (Block xs) m = popMarker $ foldr exec (marker:m) (reverse xs)
-                  where popMarker [] = []
-                        popMarker (x:xs) | isMarker x = xs
-                                         | otherwise = popMarker xs
+exec (Block xs) m = popM $ foldr exec (marker:m) (reverse xs)
+                  where popM [] = []
+                        popM (x:xs) | isMarker x = xs
+                                         | otherwise = popM xs
 
 --testcases
 --plus
@@ -180,6 +185,7 @@ prog02 = Block
     Assign "a" (Plus (Var "a") (Val (VInt 1)))
   )
   ]
+--Here is my fibonacci to get it to work type exec fibonacci [("n",VInt (what ever number u want))]
 fibonacci = Block
   [
       VarDecl "counter" (Val(VInt 1)),
