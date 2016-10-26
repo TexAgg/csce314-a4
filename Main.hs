@@ -149,7 +149,7 @@ t2 = Mult(Val (VInt 2)) (Val(VInt 4))
 
 fibonacci :: Int -> Int
 fibonacci n = asInt (fromJust res)
-                where res = lookup "result" (exec fibo[("result", VInt(-1)), ("arg", VInt n)])
+                where res = lookup "n" (exec fibo[("n", VInt(n))])
 
 
 -- example programs
