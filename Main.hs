@@ -147,6 +147,10 @@ t1 = Plus(Val(VInt 1)) (Val(VInt 1))
 --mult
 t2 = Mult(Val (VInt 2)) (Val(VInt 4))
 
+fibonacci :: Int -> Int
+fibonacci n = asInt (fromJust res)
+                where res = lookup "result" (exec fibo[("result", VInt(-1)), ("arg", VInt n)])
+
 
 -- example programs
 prog1 = Block
@@ -186,7 +190,7 @@ prog02 = Block
   )
   ]
 --Here is my fibonacci to get it to work type exec fibonacci [("n",VInt (what ever number u want))]
-fibonacci = Block
+fibo = Block
   [
       VarDecl "counter" (Val(VInt 1)),
       VarDecl "a" (Val(VInt 0)),
